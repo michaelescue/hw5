@@ -6,6 +6,8 @@
  * 
  */
 
+#include "printids.h"
+
 pthread_t ntid;
 
 void printids(const char *s){
@@ -14,6 +16,6 @@ void printids(const char *s){
 
     pid = getpid();
     tid = pthread_self();
-    printf("%s pid %lu tide %lu (ox%lx)\n", s, (unsigned long)pid, (unsigned long)tid, (unsigned long)tid);
+    printf("%s pid: %lu tid: %lu (0x%lx)\n", s, (unsigned long)pid, (unsigned long)tid, (unsigned long)tid);
 }
 

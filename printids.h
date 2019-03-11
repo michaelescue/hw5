@@ -9,16 +9,25 @@
  * 
  */
 
-#ifndef PRINTIDS_C
-#define PRINTIDS_C
-#include    "printids.c"
+#ifndef STDIO_H
+#define STDIO_H
+#include <Stdio.h>
+#endif
+
+#ifndef UNISTD_H
+#define UNISTD_H
+#include    <unistd.h>
+#endif
+
+#ifndef SYS_TYPES_H
+#define SYS_TYPES_H
+#include <sys/types.h>
 #endif
 
 #ifndef PTHREAD_H
 #define PTHREAD_H
 #include    <pthread.h>
 #endif
-
 
 /**
  * @brief This function prints the thread ID of the process running it.

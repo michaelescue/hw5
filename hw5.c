@@ -13,7 +13,7 @@
  */
 
 
-#include <printids.h>
+#include "printids.c"
 
 #define ARRAY_SIZE 64000
 
