@@ -35,4 +35,4 @@
  * @param array_size int size of the array.
  * @return int* pointer to the start of the int array.
  */
-void randarray(int *array_p);
+int randarray(int *array_p);

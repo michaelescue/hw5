@@ -11,9 +11,9 @@
 
 #include "randarray.h"
 
-#define ARRAY_SIZE 64000
+#define ARRAY_SIZE 39
 
-void randarray(int *array_p){
+int randarray(int *array_p){
 
     int array_size = ARRAY_SIZE;
     int temp = 0;
@@ -25,8 +25,14 @@ void randarray(int *array_p){
         temp = (temp % 100000);
         *(array_p + i) = temp;
         #ifdef VERBOSE
-        printf("array of %d = %d ", i, *(array_p + i));
+        printf("%d:%d ", i, *(array_p + i));
         #endif
     }
+    
+    #ifdef VERBOSE
+    printf("\n");
+    #endif
+
+    return array_size;
 
 }
