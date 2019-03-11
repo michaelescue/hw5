@@ -17,13 +17,32 @@
 #include "randarray.h"
 #include <pthread.h>
 
+void * thread_func(void *arg){
+    printids("This thread id =");
+}
+
 
 int main(int argc, char * argv){
 
+    int error;
+    pthread_t ntid;
+
     int *array_ptr = NULL;
 
-    printids("Ids:");
-    randarray(array_ptr);
+    randarray(array_ptr);   // Create a random int array.
+
+    printids("Main Thread:");
+
+    error = pthread_create(&ntid, NULL, thread_func, NULL);
+    if(error != 0)printf("error in thread creation.");
+    error = pthread_create(&ntid, NULL, thread_func, NULL);
+    if(error != 0)printf("error in thread creation.");
+    error = pthread_create(&ntid, NULL, thread_func, NULL);
+    if(error != 0)printf("error in thread creation.");
+    error = pthread_create(&ntid, NULL, thread_func, NULL);
+    if(error != 0)printf("error in thread creation.");
+
+    printids("Main thread:");
 
     free(array_ptr);
     return 1;

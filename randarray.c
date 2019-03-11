@@ -24,7 +24,9 @@ void randarray(int *array_p){
         temp = rand();
         temp = (temp % 100000);
         *(array_p + i) = temp;
+        #ifdef VERBOSE
         printf("array of %d = %d ", i, *(array_p + i));
+        #endif
     }
 
 }
