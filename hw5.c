@@ -25,5 +25,6 @@ int main(int argc, char * argv){
     printids("Ids:");
     randarray(array_ptr);
 
+    free(array_ptr);
     return 1;
 }
