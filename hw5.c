@@ -23,12 +23,8 @@
  * @param arg is the structure containing the arguments for the routine
  * @return void* 
  */
-void *bubblesort(void *arg){
-
-    #ifdef VERBOSE
-    printf("Entering new thread.\n");
-    #endif
-    
+void * bubblesort(void *arg){
+ 
     pthread_t tid;
     int quarter_size = 0;
     int *array = (int*) arg;
@@ -85,6 +81,7 @@ int main(void){
     error = pthread_create(&ntid, NULL, bubblesort, NULL);
      if(error != 0)printf("error in thread creation.\n");
 
+    sleep(5);
     printids("Main thread:");
 
     free(array_ptr);
