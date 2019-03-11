@@ -14,6 +14,7 @@
 
 
 #include "printids.c"
+#include <pthread.h>
 
 #define ARRAY_SIZE 64000
 
