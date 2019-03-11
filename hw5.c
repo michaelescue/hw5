@@ -17,6 +17,8 @@
 #include "randarray.h"
 #include <pthread.h>
 
+#define NUMBEROFTHREADS 1
+
 /**
  * @brief bubblesort function which sorts quarter sizes of an array.
  * 
@@ -64,10 +66,12 @@ return 0;
 
 int main(void){
 
+    pthread_t ntid;     // Thread ID
+    pthread_barrier_t barrier;      // Barrier variable.
+
     int error;      // Error checking
-    pthread_t ntid; // Thread ID
-    int *array_ptr = NULL; // Array pointer
-    int array_size; // Array Size.
+    int *array_ptr = NULL;      // Array pointer
+    int array_size;     // Array Size.
   
 
     array_size = randarray(array_ptr);   // Create a random int array.
@@ -78,10 +82,17 @@ int main(void){
 
     printids("Main Thread:");
 
+    pthread_barrier_init(&barrier, NULL, NUMBEROFTHREADS);      // Create a barrier for the threads.
+
     error = pthread_create(&ntid, NULL, bubblesort, NULL);
      if(error != 0)printf("error in thread creation.\n");
 
-    sleep(5);
+    #ifdef VERBOSE
+    printf("barrier = %d\n", barrier);
+    #endif
+
+    pthread_barrier_wait(&barrier);
+
     printids("Main thread:");
 
     free(array_ptr);
