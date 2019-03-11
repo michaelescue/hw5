@@ -14,15 +14,16 @@
 
 
 #include "printids.c"
+#include "randarray.h"
 #include <pthread.h>
 
-#define ARRAY_SIZE 64000
-
-pthread_t ntid;
 
 int main(int argc, char * argv){
 
+    int *array_ptr = NULL;
+
     printids("Ids:");
+    randarray(array_ptr);
 
     return 1;
 }

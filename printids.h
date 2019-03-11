@@ -1,6 +1,6 @@
 /**
  * @file printids.h
- * @Michael Escue
+ * @author Michael Escue
  * @brief Header file created for the APUE program printids.c
  * @version 0.1
  * @date 2019-03-11
