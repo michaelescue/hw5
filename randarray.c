@@ -11,10 +11,11 @@
 
 #include "randarray.h"
 
-#define ARRAY_SIZE 39
+#define ARRAY_SIZE 20
 
-int randarray(int *array_p){
+int *randarray(void){
 
+    int *array_p = NULL;
     int array_size = ARRAY_SIZE;
     int temp = 0;
 
@@ -33,6 +34,6 @@ int randarray(int *array_p){
     printf("\n");
     #endif
 
-    return array_size;
+    return array_p;
 
 }

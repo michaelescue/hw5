@@ -17,7 +17,15 @@
 #include "randarray.h"
 #include <pthread.h>
 
-#define NUMBEROFTHREADS 1
+#define NUMBEROFTHREADS 5
+
+pthread_barrier_t barrier;      // Barrier variable.
+
+void *debug(void *arg){
+       pthread_barrier_wait(&barrier);
+
+    return ((void *)0);
+}
 
 /**
  * @brief bubblesort function which sorts quarter sizes of an array.
@@ -31,67 +39,92 @@ void * bubblesort(void *arg){
     int quarter_size = 0;
     int *array = (int*) arg;
     int temp = 0;
+    int x = 0;
+    int y = 0;
     printids("This thread id =");
     tid = pthread_self();
 
     quarter_size = (ARRAY_SIZE/4);
-    int x = (tid - 2) * quarter_size;
+    int i = (tid - 2) * quarter_size;
     int n = ((tid-1)*quarter_size);
-    int y = x;
 
     #ifdef VERBOSE
     printf("quart_size calculation: tid = %lx\n", tid);
     printf("quarter_size = %d\n", quarter_size);
-    printf("x = %d\n", x);
+    printf("i = %d\n", i);
     printf("n = %d\n", n);
-    printf("y = %d\n", y);
-    printf("Test array access: Array[0] = %d", array[0]);
+      for (x = i; x < ( n ); x++){
+        printf("Array[%d] = %d\n", x, array[x]);
+        }
     #endif
     
-    for (x = 0 ; x < ( n- 1 ); x++){
-            for (y = 0 ; y < n - x - 1; y++){
-                if (array[y] > array[y+1]){
-                    temp = array[y];
-                    array[y] = array[y+1];
-                    array[y+1] = temp;
-            }
-            #ifdef VERBOSE
-            printf("array[%d] = %d", x, array[x]);
-            #endif
-        }
-    }
+   for (x = i ; x < ( n ); x++){
+       for (y = i ; y < n - x - 1 + i; y++){
+           if (array[y] > array[y+1]){         
 
-return 0;
+               temp = array[y];
+                array[y] = array[y+1];
+                array[y+1] = temp;
+            }
+        }
+
+        #ifdef VERBOSE
+        printf("Pass %d:\n", x);
+              for (int a = i; a < ( n ); a++){
+        printf("Array[%d] = %d\n", a, array[a]);
+        }
+        #endif
+    }
+    #ifdef VERBOSE
+    printf("Sorting done.\n");
+    #endif
+    pthread_barrier_wait(&barrier);
+
+    return ((void *)0);
 }
 
 int main(void){
 
     pthread_t ntid;     // Thread ID
-    pthread_barrier_t barrier;      // Barrier variable.
 
     int error;      // Error checking
     int *array_ptr = NULL;      // Array pointer
-    int array_size;     // Array Size.
   
-
-    array_size = randarray(array_ptr);   // Create a random int array.
+    array_ptr = randarray();   // Create a random int array.
 
     #ifdef VERBOSE
-    printf("Array Size = %d\n", array_size);
+    printf("Array Size = %d\n", ARRAY_SIZE);
+    printf("Array element 0 = %d\n", *(array_ptr+0));
     #endif
 
     printids("Main Thread:");
 
     pthread_barrier_init(&barrier, NULL, NUMBEROFTHREADS);      // Create a barrier for the threads.
 
-    error = pthread_create(&ntid, NULL, bubblesort, NULL);
-     if(error != 0)printf("error in thread creation.\n");
+    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    if(error != 0)printf("error in thread creation.\n");
+
+    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    if(error != 0)printf("error in thread creation.\n");
+
+    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    if(error != 0)printf("error in thread creation.\n");
+
+    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    if(error != 0)printf("error in thread creation.\n");
 
     #ifdef VERBOSE
-    printf("barrier = %d\n", barrier);
+    printf("barrier = %ld\n", barrier);
     #endif
 
     pthread_barrier_wait(&barrier);
+
+     #ifdef VERBOSE
+        printf("Post barrer wait:\n");
+              for (int a = 0; a < ( ARRAY_SIZE); a++){
+        printf("Array[%d] = %d\n", a, array_ptr[a]);
+        }
+    #endif
 
     printids("Main thread:");
 
