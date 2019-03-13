@@ -18,14 +18,13 @@
 #include <pthread.h>
 
 #define NUMBEROFTHREADS 5
-#define NUM_WRKR_THRDS 4
-#define NUM_MRG_THRDS 2
-#define LWR_OF_LWR_THRDS 3
-#define LWR_OF_UPR_THRDS 5
-#define PARTITION_SIZE (ARRAY_SIZE / NUM_WRKR_THRDS)
+#define WORKING_THREADS 4
+#define NTHR 2
+#define PARTITION_SIZE (ARRAY_SIZE / WORKING_THREADS)
 
 pthread_barrier_t barrier, lbarrier, ubarrier;      // Barrier variable.
-int snums[ARRAY_SIZE] = {0};
+int merged[ARRAY_SIZE] = {0};
+
 /**
  * @brief Garbage routine to isolate threads. Used for debugging.
  * 
@@ -39,42 +38,35 @@ void *debug(void *arg){
 }
 
 void *merge(void *arg){
-    long    idx[NUM_MRG_THRDS];
-    long    i, minidx, sidx, num;
     int *array = (int*) arg;
+    int ai;
+    int bi;
+    int i;
 
-    #ifdef VERBOSE
-    printf("Test array access:[%d]\n", array[0]);
-    #endif
-
-    for (i = 0; i <NUM_MRG_THRDS; i++){
-        idx[i] = i * NUM_MRG_THRDS;
-    }
-    for(sidx = 0; sidx < ARRAY_SIZE; sidx++){
-        num = LONG_MAX;
-        for(i = 0; i< NUM_MRG_THRDS; i++){
-            #ifdef VVERBOSE
-            printf("idx[%d] = %ld\nnum = %ld\n", i, idx[i], num);
-            #endif
-            if((idx[i] < (i+1)*PARTITION_SIZE)&&(array[idx[i]]<num)){
-                num = array[idx[i]];
-                minidx = i;
-                #ifdef VVERBOSE
-                printf("(idx[%ld] < (%ld + 1)*PARITION_SIZE)&&(array[idx[%ld]]<num)\n",i, i, i);
-                printf("num = array[ids[%ld]] = array[%ld] = %ld\n",i, idx[i], array[idx[i]]);
-                printf("minidx = %ld", i);
-                #endif
-            }
+    do{
+        if(array[ai] < array[bi]){
+            merged[i] = array[ai];
+            if(ai < PARTITION_SIZE)
+                ai++;
         }
-        snums[sidx] = array[idx[minidx]];
-        idx[minidx]++;
-        #ifdef VVERBOSE
-        printf("snunms[%ld] = array[idx[%ld]] = %ld\n", sidx, minidx, array[idx[minidx]]);
-        printf("idx[minidx]++ = %ld\n", idx[minidx]);
-        #endif
-    }
+        else{
+            merged[i] = array[bi];
+            if(bi < PARTITION_SIZE)
+                bi++;
+        }
+        i++;
+    }while((ai != (PARTITION_SIZE-1))||(bi != (PARTITION_SIZE-1)));
 
-
+    do{
+        if(ai == (PARTITION_SIZE-1)){
+        merged[i] = array[bi];
+        bi++
+        }
+        else if(bi == (PARTITION_SIZE-1)){
+            merged[i] = array[ai];
+            ai++
+        }
+    }while((ai != (PARTITION_SIZE))||(bi != (PARTITION_SIZE)));
 }
 
 /**
@@ -125,8 +117,12 @@ void * bubblesort(void *arg){
         }
         #endif
     }
-    #ifdef VERBOSE
+    #ifdef VERBOSE2
     printf("Sorting done for thread %ld.\n", tid);
+    printf("Post thread [%ld] partition sort:\n", tid);
+    for (int a = 0; a < ( ARRAY_SIZE); a++){
+        printf("Array[%d] = %d\n", a, array[a]);
+    }
     #endif
 
     if(tid == 2){
@@ -170,7 +166,7 @@ void * bubblesort(void *arg){
         }
         else if(tid == 1){
         #ifdef VERBOSE
-         printf("Thread %ld: Maint thread merged.\n", tid);
+         printf("Thread %ld: Main thread merged.\n", tid);
         #endif
         }
         return ((void *)0);
@@ -194,8 +190,8 @@ int main(void){
     printids("Main Thread:");
 
     pthread_barrier_init(&barrier, NULL, NUMBEROFTHREADS);      // Create a barrier for the threads.
-    pthread_barrier_init(&ubarrier, NULL, NUM_MRG_THRDS);      // Create a barrier for the threads.
-    pthread_barrier_init(&lbarrier, NULL, NUM_MRG_THRDS);      // Create a barrier for the threads.
+    pthread_barrier_init(&ubarrier, NULL, NTHR);      // Create a barrier for the threads.
+    pthread_barrier_init(&lbarrier, NULL, NTHR);      // Create a barrier for the threads.
 
     error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
     if(error != 0)printf("error in thread creation.\n");
@@ -216,11 +212,7 @@ int main(void){
     pthread_barrier_wait(&barrier);
 
      #ifdef VERBOSE
-        printf("Post barrer wait partition sort:\n");
-              for (int a = 0; a < ( ARRAY_SIZE); a++){
-        printf("Array[%d] = %d\n", a, array_ptr[a]);
-        }
-        printf("Post barrer wait post merget:\n");
+        printf("Post barrer wait post merge:\n");
               for (int a = 0; a < ( ARRAY_SIZE); a++){
         printf("Array[%d] = %d\n", a, snums[a]);
         }

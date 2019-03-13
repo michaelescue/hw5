@@ -11,7 +11,7 @@
 
 #include "randarray.h"
 
-#define ARRAY_SIZE 20
+#define ARRAY_SIZE 12
 
 int *randarray(void){
 
