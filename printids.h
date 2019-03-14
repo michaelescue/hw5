@@ -11,7 +11,7 @@
 
 #ifndef STDIO_H
 #define STDIO_H
-#include <Stdio.h>
+#include <stdio.h>
 #endif
 
 #ifndef UNISTD_H

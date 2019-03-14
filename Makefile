@@ -13,7 +13,7 @@ all: hw5 bubblesort timer
 again: clean hw5
 
 hw5: hw5.o printids.o randarray.o
-	$(C) $(obs) -g -o $@.exe
+	$(C) $(obs) -g -pthread -o $@.exe
 
 bubblesort: bubblesort.o randarray.o 
 	$(C) $(bobs) -g -o $@.exe
@@ -22,7 +22,7 @@ timer: timer.o
 	$(C) $(bobs) -g -o $@.exe
 
 debug: hw5.o printids.o randarray.o
-	$(C) $(obs) -g -D VERBOSE -o $@.exe
+	$(C) $(obs) -g -pthread -D VERBOSE -o $@.exe
 	
 hw5.o: hw5.c 
 	$(C) -c -g hw5.c
@@ -41,5 +41,6 @@ timer.o: timer.c
 
 clean: 
 	rm $(obs)
+	rm $(bobs)
 
 

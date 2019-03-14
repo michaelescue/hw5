@@ -31,6 +31,12 @@ pthread_barrier_t barrier, lbarrier, ubarrier;      // Barrier variable.
 int merged1[ARRAY_SIZE] = {0};      // Array for first pairs of threads to sort to.
 int merged2[ARRAY_SIZE] = {0};      // Array of final result from merging the two chunks of merged1 by thread 1.
 
+pthread_t tid1 = 0;
+pthread_t tid2 = 0;
+pthread_t tid3 = 0;
+pthread_t tid4 = 0;
+pthread_t tid5 = 0;
+
 /**
  * @brief the sorted merge section of code which merges based on thread id.
  * 
@@ -46,6 +52,12 @@ void *merge(void *arg){
     int limit_size = PARTITION_SIZE;
     int offset;
     pthread_t tid = pthread_self();
+
+    if(tid == tid1) tid = 1;
+    if(tid == tid2) tid = 2;
+    if(tid == tid3) tid = 3;
+    if(tid == tid4) tid = 4;
+    if(tid == tid5) tid = 5;
 
     array = (int*) arg;
     merged = merged1;
@@ -138,6 +150,13 @@ void * bubblesort(void *arg){
     printids("New Thread:");
     tid = pthread_self();
 
+    if(tid == tid1) tid = 1;
+    if(tid == tid2) tid = 2;
+    if(tid == tid3) tid = 3;
+    if(tid == tid4) tid = 4;
+    if(tid == tid5) tid = 5;
+
+    if(tid)
     quarter_size = PARTITION_SIZE;
     int i = (tid - 2) * quarter_size;
     int n = ((tid-1) * quarter_size);
@@ -250,16 +269,16 @@ int main(void){
     pthread_barrier_init(&ubarrier, NULL, NTHR);      // Create a barrier for the threads.
     pthread_barrier_init(&lbarrier, NULL, NTHR);      // Create a barrier for the threads.
 
-    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    error = pthread_create(&tid2, NULL, bubblesort, array_ptr);
     if(error != 0)printf("error in thread creation.\n");
 
-    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    error = pthread_create(&tid3, NULL, bubblesort, array_ptr);
     if(error != 0)printf("error in thread creation.\n");
 
-    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    error = pthread_create(&tid4, NULL, bubblesort, array_ptr);
     if(error != 0)printf("error in thread creation.\n");
 
-    error = pthread_create(&ntid, NULL, bubblesort, array_ptr);
+    error = pthread_create(&tid5, NULL, bubblesort, array_ptr);
     if(error != 0)printf("error in thread creation.\n");
 
     #ifdef VERBOSE
