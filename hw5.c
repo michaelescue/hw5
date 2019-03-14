@@ -59,14 +59,12 @@ void *merge(void *arg){
         offset = 0;
 
     // Only threads 3 and 5 merge with the other eventhreads. Thread 1 merges the merged threads by itself.
-    #if VERBOSEMERGE
-    printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
-    #endif
 
     do{
         #ifdef VERBOSEMERGE
-        printids("do-while 1: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
-        printids("do-while 1: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+        printf("do-while 1: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
+        printf("do-while 1: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+        printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
         #endif
 
         if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)]){
@@ -84,8 +82,9 @@ void *merge(void *arg){
 
     do{
         #ifdef VERBOSEMERGE
-        printids("do-while 2: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
-        printids("do-while 2: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+        printf("do-while 2: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
+        printf("do-while 2: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+        printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
         #endif
 
         if(ai == (limit_size-1)){
@@ -102,8 +101,9 @@ void *merge(void *arg){
     }while((ai != bi));
 
     #ifdef VERBOSEMERGE
-    printids("do-while post: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
-    printids("do-while post: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+    printf("do-while post: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
+    printf("do-while post: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+    printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
     #endif
 
     if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)])
