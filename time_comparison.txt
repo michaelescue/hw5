@@ -1,0 +1,18 @@
+ubuntu@ubuntu:~/hw5$ time ./bubblesort.exe
+Check passed, bubblesort SUCCESS!
+
+real	0m11.687s
+user	0m11.687s
+sys	0m0.000s
+ubuntu@ubuntu:~/hw5$ time ./hw5.exe
+Main Thread: pid: 11108 tid: 140669067253568 (0x7ff011c8d740)
+New Thread: pid: 11108 tid: 140669058742016 (0x7ff01146f700)
+New Thread: pid: 11108 tid: 140669050349312 (0x7ff010c6e700)
+New Thread: pid: 11108 tid: 140669041956608 (0x7ff01046d700)
+New Thread: pid: 11108 tid: 140669033563904 (0x7ff00fc6c700)
+Check passed, Sort & Merge SUCCESS!
+
+real	0m0.735s
+user	0m2.897s
+sys	0m0.004s
+
