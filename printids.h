@@ -9,6 +9,12 @@
  * 
  */
 
+#ifndef VARIABLES
+#define VARIABLES
+#define ARRAY_SIZE 64000
+#define SIZE_MODULUS 10000
+#endif
+
 #ifndef STDIO_H
 #define STDIO_H
 #include <Stdio.h>
@@ -34,4 +40,7 @@
  * 
  * @param s A constant char. A string to preface the printed IDs.
  */
+#ifndef PRINTIDS_H
+#define PRINTIDS_H
 void printids(const char *s);
+#endif

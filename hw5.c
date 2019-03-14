@@ -13,7 +13,7 @@
  */
 
 
-#include "printids.c"
+#include "printids.h"
 #include "randarray.h"
 #include <pthread.h>
 
@@ -28,9 +28,15 @@
 // VERBOSEMERGE - merge()
 
 pthread_barrier_t barrier, lbarrier, ubarrier;      // Barrier variable.
-int merged1[ARRAY_SIZE] = {0};
-int merged2[ARRAY_SIZE] = {0};
+int merged1[ARRAY_SIZE] = {0};      // Array for first pairs of threads to sort to.
+int merged2[ARRAY_SIZE] = {0};      // Array of final result from merging the two chunks of merged1 by thread 1.
 
+/**
+ * @brief the sorted merge section of code which merges based on thread id.
+ * 
+ * @param arg initially the randomly initialized array.
+ * @return void* no interest in this return value.
+ */
 void *merge(void *arg){
     int *array = NULL;
     int *merged = NULL;
@@ -40,7 +46,6 @@ void *merge(void *arg){
     int limit_size = PARTITION_SIZE;
     int offset;
     pthread_t tid = pthread_self();
-    printids("This thread id =");
 
     array = (int*) arg;
     merged = merged1;
@@ -59,6 +64,10 @@ void *merge(void *arg){
 
     // Only threads 3 and 5 merge with the other eventhreads. Thread 1 merges the merged threads by itself.
 
+    /**
+     * This section of code is the comparison between elements of the upper and lower chunks,
+     * determined by the thread id. 
+     */
     do{
         #ifdef VERBOSEMERGE
         printf("do-while 1: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
@@ -67,7 +76,7 @@ void *merge(void *arg){
         #endif
 
         
-        if(array[ai + (offset * limit_size)] <= array[bi + limit_size + (offset * limit_size)]){
+        if(array[ai + (offset * limit_size)] <= array[bi + limit_size + (offset * limit_size)]){ 
             merged[i] = array[ai + (offset * limit_size)];
             if(ai < limit_size)
                 ai++;
@@ -80,6 +89,9 @@ void *merge(void *arg){
         i++;
     }while((ai < limit_size)&&(bi < limit_size));
 
+    /**
+     * This section of code is the logic used when one of the segments of the array have no more elements to compare. 
+     */
     do{   
         #ifdef VERBOSEMERGE
         printf("do-while 2: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
@@ -104,8 +116,8 @@ void *merge(void *arg){
     for (int a = 0; a < ( ARRAY_SIZE); a++){
         printf("Array[%d] = %d\n", a, merged[a]);
     }
-    #endif
     printids("Thread returning from merge =");
+    #endif
 
 }
 
@@ -123,7 +135,7 @@ void * bubblesort(void *arg){
     int temp = 0;
     int x = 0;
     int y = 0;
-    printids("This thread id =");
+    printids("New Thread:");
     tid = pthread_self();
 
     quarter_size = PARTITION_SIZE;
@@ -165,6 +177,11 @@ void * bubblesort(void *arg){
     }
     #endif
 
+
+    /**
+     * This block of code acts as a thread stopper, to allow threads still processing
+     * to finish sorting their segments before moving on to merge. 
+     */
     if(tid == 2){
         #ifdef VERBOSESORTWAIT
          printf("Thread %ld waiting.\n", tid);
@@ -196,7 +213,7 @@ void * bubblesort(void *arg){
         pthread_barrier_wait(&barrier);
         return ((void *)0);
     }
-    
+
     merge(arg);
     if(tid >= 2){
         #ifdef VERBOSEWAIT
@@ -208,6 +225,11 @@ void * bubblesort(void *arg){
     
 }
 
+/**
+ * @brief main section of code to generate threads and call code to generate random array.
+ * 
+ * @return int returns a result (not interested)
+ */
 int main(void){
 
     pthread_t ntid;     // Thread ID
@@ -253,8 +275,14 @@ int main(void){
         }
     #endif
 
-    printids("Main thread:");
-
-    free(array_ptr);
+    for (int a = 0; a < ( ARRAY_SIZE - 1); a++){
+        if(merged2[a]>merged2[a+1]){
+            printf("Sort & Merge FAILURE!\n");
+            printf("Array[%d] = %d\n Array[%d +1] = %d\n", a, merged2[a],merged2[a+1]);
+            free(array_ptr);
+            return 0;
+        }
+    }
+    printf("Check passed, Sort & Merge SUCCESS!\n");
     return 1;
 }

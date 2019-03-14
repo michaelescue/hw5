@@ -11,8 +11,6 @@
 
 #include "randarray.h"
 
-#define ARRAY_SIZE 12
-
 int *randarray(void){
 
     int *array_p = NULL;
@@ -23,7 +21,7 @@ int *randarray(void){
         fprintf(stderr, "Error in malloc.");
     for(int i = 0; i < array_size; i++){
         temp = rand();
-        temp = (temp % 100000);
+        temp = (temp % SIZE_MODULUS);
         *(array_p + i) = temp;
         #ifdef VERBOSE
         printf("%d:%d ", i, *(array_p + i));

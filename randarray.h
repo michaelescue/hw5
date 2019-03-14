@@ -19,11 +19,6 @@
 #include <stdlib.h>
 #endif
 
-#ifndef RANDARRAY_C
-#define RANDARRAY_C
-#include "randarray.c"
-#endif
-
 #ifndef ERRNO_H
 #define ERRNO_H
 #include <errno.h>
@@ -35,4 +30,7 @@
  * @param array_size int size of the array.
  * @return int* pointer to the start of the int array.
  */
+#ifndef RANDARRAY_H
+#define RANDARRAY_H
 int *randarray(void);
+#endif
