@@ -67,7 +67,8 @@ void *merge(void *arg){
         printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
         #endif
 
-        if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)]){
+        
+        if(array[ai + (offset * limit_size)] <= array[bi + limit_size + (offset * limit_size)]){
             merged[i] = array[ai + (offset * limit_size)];
             if(ai < limit_size)
                 ai++;
@@ -78,44 +79,29 @@ void *merge(void *arg){
                 bi++;
         }
         i++;
-    }while((ai != (limit_size-1))&&(bi != (limit_size-1)));
+    }while((ai < limit_size)&&(bi < limit_size));
 
-    do{
+    do{   
         #ifdef VERBOSEMERGE
         printf("do-while 2: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
         printf("do-while 2: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
         printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
         #endif
 
-        if(ai == (limit_size-1)){
-                    merged[i] = array[bi + limit_size + (offset * limit_size)];                      
-                    bi++;
-            }
-        if(bi == (limit_size-1)){
-            if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)]){
-                merged[i] = array[ai + (offset * limit_size)];
-                ai++;
-            }
+        if(ai == limit_size){
+            merged[i] = array[bi + limit_size + (offset * limit_size)];                      
+            bi++;
+        }
+        else if(bi == limit_size){
+            merged[i] = array[ai + (offset * limit_size)];
+            ai++;
         }
         i++;
-    }while((ai != bi));
+    }while((ai < limit_size) || (bi < limit_size));
 
-    #ifdef VERBOSEMERGE
-    printf("do-while post: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
-    printf("do-while post: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
-    printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
-    #endif
-
-    if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)])
-        merged[i] = array[ai + (offset * limit_size)];
-    else
-        merged[i] = array[bi + limit_size + (offset * limit_size)];
- 
-
-
-     #ifdef VERBOSEMERGE
+     #ifdef VERBOSE
     printf("Merging done for thread %ld.\n", tid);
-    printf("Post thread [%ld] partition sort:\n", tid);
+    printf("Post thread [%ld] merge:\n", tid);
     for (int a = 0; a < ( ARRAY_SIZE); a++){
         printf("Array[%d] = %d\n", a, merged[a]);
     }
@@ -172,7 +158,7 @@ void * bubblesort(void *arg){
         }
         #endif
     }
-    #ifdef VERBOSESORT
+    #ifdef VERBOSESORT 
     printf("Sorting done for thread %ld.\n", tid);
     printf("Post thread [%ld] partition sort:\n", tid);
     for (int a = 0; a < ( ARRAY_SIZE); a++){
@@ -211,21 +197,16 @@ void * bubblesort(void *arg){
         pthread_barrier_wait(&barrier);
         return ((void *)0);
     }
-    else{
-        merge(arg);
-        if(tid >= 2){
-            #ifdef VERBOSEWAIT
-             printf("Thread %ld waiting for single thread merge.\n", tid);
-            #endif
-            pthread_barrier_wait(&barrier);
-        }
-        else if(tid == 1){
-        #ifdef VERBOSEMERGE
-         printf("Thread %ld: Main thread merged.\n", tid);
+    
+    merge(arg);
+    if(tid >= 2){
+        #ifdef VERBOSEWAIT
+            printf("Thread %ld waiting for single thread merge.\n", tid);
         #endif
-        }
-        return ((void *)0);
+        pthread_barrier_wait(&barrier);
     }
+    return ((void *)0);
+    
 }
 
 int main(void){
@@ -265,7 +246,7 @@ int main(void){
     #endif
 
     pthread_barrier_wait(&barrier);
-
+    merge(array_ptr);
      #ifdef VERBOSE
         printf("Post barrer wait post merge:\n");
               for (int a = 0; a < ( ARRAY_SIZE); a++){
