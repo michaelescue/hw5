@@ -5,16 +5,21 @@
 
 C = gcc
 obs = hw5.o printids.o randarray.o
+bobs = bubblesort.o randarray.o
 hdrs = randarray.h printids.h
 
 #Homework 1
-all: hw5
+all: hw5 bubblesort timer
 again: clean hw5
 
 hw5: hw5.o printids.o randarray.o
 	$(C) $(obs) -g -o $@.exe
 
 bubblesort: bubblesort.o randarray.o 
+	$(C) $(bobs) -g -o $@.exe
+
+timer: timer.o
+	$(C) $(bobs) -g -o $@.exe
 
 debug: hw5.o printids.o randarray.o
 	$(C) $(obs) -g -D VERBOSE -o $@.exe
@@ -27,6 +32,12 @@ printids.o: printids.c printids.h
 	
 randarray.o: randarray.c randarray.h
 	$(C) -c -g randarray.c 
+
+bubblesort.o: bubblesort.c randarray.h randarray.c
+	$(C) -c -g bubblesort.c
+
+timer.o: timer.c
+	$(C) -c -g timer.c
 
 clean: 
 	rm $(obs)

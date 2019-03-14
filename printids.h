@@ -9,12 +9,6 @@
  * 
  */
 
-#ifndef VARIABLES
-#define VARIABLES
-#define ARRAY_SIZE 64000
-#define SIZE_MODULUS 10000
-#endif
-
 #ifndef STDIO_H
 #define STDIO_H
 #include <Stdio.h>

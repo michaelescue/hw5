@@ -283,6 +283,9 @@ int main(void){
             return 0;
         }
     }
+    
+    free(array_ptr);
+
     printf("Check passed, Sort & Merge SUCCESS!\n");
     return 1;
 }
