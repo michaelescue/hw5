@@ -47,7 +47,6 @@ void *merge(void *arg){
 
     if(tid == 1){
         limit_size = (PARTITION_SIZE * 2);
-        i = (limit_size);
         array = merged1;
         merged = merged2;
     }
