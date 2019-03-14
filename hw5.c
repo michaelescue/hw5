@@ -22,51 +22,106 @@
 #define NTHR 2
 #define PARTITION_SIZE (ARRAY_SIZE / WORKING_THREADS)
 
+//Debug Defines
+// VERBOSE - main()
+// VERBOSESORT - bubblesort()
+// VERBOSEMERGE - merge()
+
 pthread_barrier_t barrier, lbarrier, ubarrier;      // Barrier variable.
-int merged[ARRAY_SIZE] = {0};
-
-/**
- * @brief Garbage routine to isolate threads. Used for debugging.
- * 
- * @param arg  NULL
- * @return void*  NULL
- */
-void *debug(void *arg){
-       pthread_barrier_wait(&barrier);
-
-    return ((void *)0);
-}
+int merged1[ARRAY_SIZE] = {0};
+int merged2[ARRAY_SIZE] = {0};
 
 void *merge(void *arg){
-    int *array = (int*) arg;
-    int ai;
-    int bi;
-    int i;
+    int *array = NULL;
+    int *merged = NULL;
+    int ai = 0;
+    int bi = 0;
+    int i = 0;
+    int limit_size = PARTITION_SIZE;
+    int offset;
+    pthread_t tid = pthread_self();
+    printids("This thread id =");
+
+    array = (int*) arg;
+    merged = merged1;
+
+    if(tid == 1){
+        limit_size = (PARTITION_SIZE * 2);
+        i = (limit_size);
+        array = merged1;
+        merged = merged2;
+    }
+    else if(tid == 5){
+        offset = 2;
+        i = (limit_size * NTHR);
+    }
+    else 
+        offset = 0;
+
+    // Only threads 3 and 5 merge with the other eventhreads. Thread 1 merges the merged threads by itself.
+    #if VERBOSEMERGE
+    printf("ai = %d\nbi = %d\noffset = %d\ni = %d\nlimit_size = %d\ntid = %ld\n", ai, bi, offset, i, limit_size, tid);
+    #endif
 
     do{
-        if(array[ai] < array[bi]){
-            merged[i] = array[ai];
-            if(ai < PARTITION_SIZE)
+        #ifdef VERBOSEMERGE
+        printids("do-while 1: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
+        printids("do-while 1: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+        #endif
+
+        if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)]){
+            merged[i] = array[ai + (offset * limit_size)];
+            if(ai < limit_size)
                 ai++;
         }
         else{
-            merged[i] = array[bi];
-            if(bi < PARTITION_SIZE)
+            merged[i] = array[bi + limit_size + (offset * limit_size)];
+            if(bi < limit_size)
                 bi++;
         }
         i++;
-    }while((ai != (PARTITION_SIZE-1))||(bi != (PARTITION_SIZE-1)));
+    }while((ai != (limit_size-1))&&(bi != (limit_size-1)));
 
     do{
-        if(ai == (PARTITION_SIZE-1)){
-        merged[i] = array[bi];
-        bi++
+        #ifdef VERBOSEMERGE
+        printids("do-while 2: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
+        printids("do-while 2: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+        #endif
+
+        if(ai == (limit_size-1)){
+                    merged[i] = array[bi + limit_size + (offset * limit_size)];                      
+                    bi++;
+            }
+        if(bi == (limit_size-1)){
+            if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)]){
+                merged[i] = array[ai + (offset * limit_size)];
+                ai++;
+            }
         }
-        else if(bi == (PARTITION_SIZE-1)){
-            merged[i] = array[ai];
-            ai++
-        }
-    }while((ai != (PARTITION_SIZE))||(bi != (PARTITION_SIZE)));
+        i++;
+    }while((ai != bi));
+
+    #ifdef VERBOSEMERGE
+    printids("do-while post: array[ai-effective] = %d\n", array[ai + (offset * limit_size)]);
+    printids("do-while post: array[bi-effective] = %d\n", array[bi + limit_size + (offset * limit_size)]);
+    #endif
+
+    if(array[ai + (offset * limit_size)] < array[bi + limit_size + (offset * limit_size)])
+        merged[i] = array[ai + (offset * limit_size)];
+    else
+        merged[i] = array[bi + limit_size + (offset * limit_size)];
+ 
+
+
+     #ifdef VERBOSEMERGE
+    printf("Merging done for thread %ld.\n", tid);
+    printf("Post thread [%ld] partition sort:\n", tid);
+    for (int a = 0; a < ( ARRAY_SIZE); a++){
+        printf("Array[%d] = %d\n", a, merged[a]);
+    }
+    #endif
+    printids("Thread returning from merge =");
+
 }
 
 /**
@@ -86,11 +141,11 @@ void * bubblesort(void *arg){
     printids("This thread id =");
     tid = pthread_self();
 
-    quarter_size = (ARRAY_SIZE/4);
+    quarter_size = PARTITION_SIZE;
     int i = (tid - 2) * quarter_size;
-    int n = ((tid-1)*quarter_size);
+    int n = ((tid-1) * quarter_size);
 
-    #ifdef VERBOSE
+    #ifdef VERBOSESORT
     printf("quart_size calculation: tid = %lx\n", tid);
     printf("quarter_size = %d\n", quarter_size);
     printf("i = %d\n", i);
@@ -110,14 +165,14 @@ void * bubblesort(void *arg){
             }
         }
 
-        #ifdef VVERBOSE
+        #ifdef VERBOSESORT
         printf("Pass %d:\n", x);
               for (int a = i; a < ( n ); a++){
         printf("Array[%d] = %d\n", a, array[a]);
         }
         #endif
     }
-    #ifdef VERBOSE2
+    #ifdef VERBOSESORT
     printf("Sorting done for thread %ld.\n", tid);
     printf("Post thread [%ld] partition sort:\n", tid);
     for (int a = 0; a < ( ARRAY_SIZE); a++){
@@ -126,31 +181,31 @@ void * bubblesort(void *arg){
     #endif
 
     if(tid == 2){
-        #ifdef VERBOSE
+        #ifdef VERBOSESORTWAIT
          printf("Thread %ld waiting.\n", tid);
         #endif
         pthread_barrier_wait(&lbarrier);
     }
     if(tid == 3){
-         #ifdef VERBOSE
+         #ifdef VERBOSESORTWAIT
          printf("Thread %ld waiting.\n", tid);
         #endif
         pthread_barrier_wait(&lbarrier);
     }
     if(tid == 4){
-         #ifdef VERBOSE
+         #ifdef VERBOSESORTWAIT
          printf("Thread %ld waiting.\n", tid);
         #endif
         pthread_barrier_wait(&ubarrier);
     }
     if(tid == 5){
-         #ifdef VERBOSE
+         #ifdef VERBOSESORTWAIT
          printf("Thread %ld waiting.\n", tid);
         #endif
         pthread_barrier_wait(&ubarrier);
     }
     if((tid % 2) == 0){
-         #ifdef VERBOSE
+         #ifdef VERBOSESORTWAIT
          printf("Thread %ld waiting for single thread merge.\n", tid);
         #endif
         pthread_barrier_wait(&barrier);
@@ -159,13 +214,13 @@ void * bubblesort(void *arg){
     else{
         merge(arg);
         if(tid >= 2){
-            #ifdef VERBOSE
+            #ifdef VERBOSEWAIT
              printf("Thread %ld waiting for single thread merge.\n", tid);
             #endif
             pthread_barrier_wait(&barrier);
         }
         else if(tid == 1){
-        #ifdef VERBOSE
+        #ifdef VERBOSEMERGE
          printf("Thread %ld: Main thread merged.\n", tid);
         #endif
         }
@@ -214,7 +269,7 @@ int main(void){
      #ifdef VERBOSE
         printf("Post barrer wait post merge:\n");
               for (int a = 0; a < ( ARRAY_SIZE); a++){
-        printf("Array[%d] = %d\n", a, snums[a]);
+        printf("Array[%d] = %d\n", a, merged2[a]);
         }
     #endif
 
